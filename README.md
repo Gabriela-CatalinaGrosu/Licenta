@@ -14,6 +14,7 @@ Instalează toate dependențele cu:
 
 ```bash
 pip install -r requirements.txt
+```
 
 ## 🎵 Ce este music21?
 
