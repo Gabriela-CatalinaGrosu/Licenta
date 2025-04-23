@@ -5,6 +5,27 @@ from note import *
 from segmentare import *
 from convers_input import *
 
+
+def durata_piesa(partitura):
+    tempo_markers = partitura.flat.getElementsByClass('MetronomeMark')
+
+    # Dacă există un tempo definit, extrage BPM-ul
+    if tempo_markers:
+        bpm = tempo_markers[0].number
+
+    quarter_length = partitura.flat.quarterLength
+    if bpm is not None:
+        # Calcularea duratei totale a piesei în secunde
+        total_duration = partitura.duration.quarterLength  # Durata totală în "lungimi de cvartă"
+        seconds_per_quarter = 60 / bpm  # Cât timp durează o cvartă de notă (în secunde)
+        total_seconds = total_duration * seconds_per_quarter
+        print(f"Timpul total al piesei este: {total_seconds:.2f} secunde")
+        print(f"Timpul total al piesei este: {quarter_length:.2f} măsuri")
+    else:
+        print("Nu s-a găsit un tempo definit. Timpul nu poate fi calculat.")
+        print(f"Timpul total al piesei este: {quarter_length:.2f} măsuri (fără tempo definit)")
+
+
 def main():
     """Procesează un fișier MusicXML sau MIDI și realizează analize muzicale."""
     parser = argparse.ArgumentParser(description="Analizează o piesă muzicală cu music21.")
@@ -41,9 +62,10 @@ def main():
     # numele fara extenstia fisierului
     name = os.path.splitext(os.path.basename(input_file))[0]
     output_dir = "analize"
-    extrage_note_muzicale(partitura, name)
+    # durata_piesa(partitura)
+    # extrage_note_muzicale(partitura, name)
     # # # segmentare(output_file)
-    # segmentare_tonalitate(partitura, name)
+    segmentare(partitura, name)
     # segmentare_acorduri(partitura, name)
 
     

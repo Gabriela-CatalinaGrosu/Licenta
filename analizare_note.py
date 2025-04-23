@@ -52,7 +52,8 @@ def analiza_ritm(note, instr, output_dir="analize"):
     stats = {
         'durata_medie': note['duration'].mean() if not note.empty else None,
         'durata_minima': note['duration'].min() if not note.empty else None,
-        'durata_maxima': note['duration'].max() if not note.empty else None
+        'durata_maxima': note['duration'].max() if not note.empty else None,
+        'durata_totala': note['duration'].sum() if not note.empty else None
     }
     stats_file = os.path.join(output_dir, f"rhythm_stats_{instr}.txt")
     with open(stats_file, 'w', encoding='utf-8') as f:
