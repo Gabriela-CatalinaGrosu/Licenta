@@ -57,16 +57,10 @@ def main():
             print(f"Eroare la încărcarea fișierului XML '{input_file}': {e}")
             return
 
-
-    # output_file = os.path.basename(input_file).replace('.xml', '.csv')
-    # numele fara extenstia fisierului
     name = os.path.splitext(os.path.basename(input_file))[0]
     output_dir = "analize"
-    # durata_piesa(partitura)
     extrage_note_muzicale(partitura, name)
-    # # # segmentare(output_file)
     segmentare(partitura, name)
-    # segmentare_acorduri(partitura, name)
 
     
  

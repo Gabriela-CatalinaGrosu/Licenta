@@ -1,0 +1,4 @@
+numar_note: 165
+pitch_uri_unice: 24
+octava_minima: 2.0
+octava_maxima: 5.0
