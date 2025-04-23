@@ -15,7 +15,9 @@ def analiza_voce(part, output_dir):
     
     # Creează directorul de ieșire dacă nu există
     os.makedirs(output_dir, exist_ok=True)
-    nume_fisier = os.path.join(output_dir, f"{part_name}_note.csv")
+    instrument_dir = os.path.join(output_dir, part_name)
+    os.makedirs(instrument_dir, exist_ok=True)
+    nume_fisier = os.path.join(instrument_dir, f"{part_name}_note.csv")
 
     # Verifică dacă fișierul CSV există deja
     if os.path.isfile(nume_fisier):
@@ -61,7 +63,6 @@ def extrage_note_muzicale(partitura, name, output_dir = "analiza_note"):
 
     # Creează directorul de ieșire dacă nu există
     os.makedirs(output_dir, exist_ok=True)
-
     output_file = os.path.join(output_dir, f"{name}.csv")
 
     # Verifică dacă fișierul CSV există deja
@@ -138,3 +139,4 @@ def extrage_note_muzicale(partitura, name, output_dir = "analiza_note"):
         print(f"Eroare la scrierea în fișierul CSV '{output_file}': {e}")
 
     analiza_file(output_file, output_dir)
+    
