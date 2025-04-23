@@ -12,12 +12,15 @@ def analiza_distributie_pitch(note, instr, output_dir="analize"):
     # Distribuția pitch-urilor
     pitch_counts = note['pitch'].value_counts().reset_index()
     pitch_counts.columns = ['pitch', 'count']
-    output_file = os.path.join(output_dir, f"pitch_distribution_{instr}.csv")
+
+    instrument_dir = os.path.join(output_dir, instr)
+    os.makedirs(instrument_dir, exist_ok=True)
+    output_file = os.path.join(instrument_dir, f"pitch_distribution_{instr}.csv")
     pitch_counts.to_csv(output_file, index=False)
-    print(f"Distribuția pitch-urilor ({instr}) salvată în: {output_file}")
+    print(f"Distribuția pitch-urilor ({instr}) salvată în: {instrument_dir}")
     
     # Grafic
-    grafic_distributie(instr, pitch_counts,  output_dir)
+    grafic_distributie(instr, pitch_counts,  instrument_dir)
     
     # Statistici generale
     stats = {
@@ -26,7 +29,7 @@ def analiza_distributie_pitch(note, instr, output_dir="analize"):
         'octava_minima': note['octave'].min() if not note.empty else None,
         'octava_maxima': note['octave'].max() if not note.empty else None
     }
-    stats_file = os.path.join(output_dir, f"pitch_stats_{instr}.txt")
+    stats_file = os.path.join(instrument_dir, f"pitch_stats_{instr}.txt")
     with open(stats_file, 'w', encoding='utf-8') as f:
         for key, value in stats.items():
             f.write(f"{key}: {value}\n")
@@ -41,12 +44,15 @@ def analiza_ritm(note, instr, output_dir="analize"):
     # Distribuția duratelor
     duration_counts = note['duration'].value_counts().reset_index()
     duration_counts.columns = ['duration', 'count']
-    output_file = os.path.join(output_dir, f"duration_distribution_{instr}.csv")
+
+    instrument_dir = os.path.join(output_dir, instr)
+    os.makedirs(instrument_dir, exist_ok=True)
+    output_file = os.path.join(instrument_dir, f"duration_distribution_{instr}.csv")
     duration_counts.to_csv(output_file, index=False)
-    print(f"Distribuția duratelor ({instr}) salvată în: {output_file}")
+    print(f"Distribuția duratelor ({instr}) salvată în: {instrument_dir}")
     
     # Grafic toate vocile
-    grafic_distributie_ritm(instr, duration_counts, output_dir)
+    grafic_distributie_ritm(instr, duration_counts, instrument_dir)
     
     # Statistici ritmice
     stats = {
@@ -55,7 +61,7 @@ def analiza_ritm(note, instr, output_dir="analize"):
         'durata_maxima': note['duration'].max() if not note.empty else None,
         'durata_totala': note['duration'].sum() if not note.empty else None
     }
-    stats_file = os.path.join(output_dir, f"rhythm_stats_{instr}.txt")
+    stats_file = os.path.join(instrument_dir, f"rhythm_stats_{instr}.txt")
     with open(stats_file, 'w', encoding='utf-8') as f:
         for key, value in stats.items():
             f.write(f"{key}: {value}\n")
@@ -71,12 +77,15 @@ def analiza_densitate(note, instr, output_dir="analize", bin_size=1.0):
     note['time_bin'] = (note['offset'] // bin_size) * bin_size
     density = note.groupby('time_bin').size().reset_index()
     density.columns = ['time_bin', 'count']
-    output_file = os.path.join(output_dir, f"density_{instr}.csv")
+
+    instrument_dir = os.path.join(output_dir, instr)
+    os.makedirs(instrument_dir, exist_ok=True)
+    output_file = os.path.join(instrument_dir, f"density_{instr}.csv")
     density.to_csv(output_file, index=False)
     print(f"Densitatea notelor ({instr}) salvată în: {output_file}")
     
     # Grafic
-    grafic_densitate(instr, density, output_dir)
+    grafic_densitate(instr, density, instrument_dir)
 
 
 def analiza_file(csv_file, output_dir = "analize"):
@@ -103,3 +112,4 @@ def analiza_file(csv_file, output_dir = "analize"):
             analiza_distributie_pitch(note_instr, instr, output_dir)
             analiza_ritm(note_instr, instr, output_dir)
             analiza_densitate(note_instr, instr, output_dir)
+            
