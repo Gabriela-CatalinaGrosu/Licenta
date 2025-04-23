@@ -51,6 +51,11 @@ def segmentare_tonalitate(partitura, name, output_dir="segmentare"):
         output_dir: Directorul în care se salvează fișierul.
     """
     output_file = os.path.join(output_dir, f'{name}_tonalitate.csv')
+    dir = os.path.join(output_dir, 'tonalitate')
+    # Creează directorul de ieșire pentru tonalitate dacă nu există
+    os.makedirs(dir, exist_ok=True)
+
+    output_file = os.path.join(dir, f'{name}tonalitate.csv')
     # Verifică dacă fișierul există
     if os.path.isfile(output_file):
         print(f"\tFișierul '{output_file}' există deja. Îl voi suprascrie.")
@@ -149,14 +154,17 @@ def repetitii(partitura):
 def segmentare_repetitii(partitura, name, output_dir="segmentare"):
     # Creează directorul de ieșire dacă nu există
     os.makedirs(output_dir, exist_ok=True)
-    output_file = os.path.join(output_dir, f'{name}_repetitii.csv')
+    dir = os.path.join(output_dir, 'repetitii')
+    # Creează directorul de ieșire pentru repetitii dacă nu există
+    os.makedirs(dir, exist_ok=True)
+    output_file = os.path.join(dir, f'{name}_repetitii.csv')
     # Verifică dacă fișierul există
     if os.path.isfile(output_file):
         print(f"\tFișierul '{output_file}' există deja. Îl voi suprascrie.")
     else:
         print(f"\tFișierul '{output_file}' nu există. Îl voi crea.")
     
-    segmente = repetitii(partitura, name, output_dir)
+    segmente = repetitii(partitura)
 
     # Salvează rezultatele
     try:
@@ -228,8 +236,12 @@ def acorduri(partitura):
 def segmentare_acorduri(partitura, name, output_dir="segmentare"):
     # Creează directorul de ieșire dacă nu există
     os.makedirs(output_dir, exist_ok=True)
+
+    dir = os.path.join(output_dir, 'acorduri')
+    # Creează directorul de ieșire pentru acorduri dacă nu există
+    os.makedirs(dir, exist_ok=True)
     # Numele fișierului de ieșire
-    output_file = os.path.join(output_dir, f'{name}_acorduri.csv')
+    output_file = os.path.join(dir, f'{name}_acorduri.csv')
     # Verifică dacă fișierul există
     if os.path.isfile(output_file):
         print(f"\tFișierul '{output_file}' există deja. Îl voi suprascrie.")
@@ -245,7 +257,7 @@ def segmentare_acorduri(partitura, name, output_dir="segmentare"):
             for idx, (figura, start, end) in enumerate(segmente, 1):
                 figura_str = figura.replace(' ', '_') if figura else 'Unknown'
                 writer.writerow([f"{start:.3f}", f"{end:.3f}", f"Seg#{idx}_Acord_{figura_str}"])
-        print(f"\tRezultatele au fost salvate în fișierul: '{output_file}'")
+        print(f"\tRezultatele au fost salvate în fișierul: '{dir}'")
     except Exception as e:
         print(f"\tEroare la scrierea fișierului: {e}") 
 
@@ -265,3 +277,6 @@ def segmentare(partitura, name, output_dir="segmentare"):
 
     # Segmentare bazată pe acorduri
     segmentare_acorduri(partitura, name, output_dir)
+
+    # Segmentare bazată pe repetiții
+    segmentare_repetitii(partitura, name, output_dir)
