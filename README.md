@@ -1,1 +1,1 @@
-** Analiza structurii pieselor muzicale
+# Analiza structurii pieselor muzicale
