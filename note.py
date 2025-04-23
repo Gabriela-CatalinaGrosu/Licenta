@@ -2,7 +2,7 @@ from music21 import *
 import csv
 import os
 
-from Licenta.analizare_note import *
+from analizare_note import analiza_file
 
 def analiza_voce(part, output_dir):
     """
@@ -136,6 +136,5 @@ def extrage_note_muzicale(partitura, name, output_dir = "analiza_note"):
         print(f"Notele au fost scrise în fișierul: '{output_file}'")
     except Exception as e:
         print(f"Eroare la scrierea în fișierul CSV '{output_file}': {e}")
-    analiza_densitate(output_file, output_dir)
-    analiza_ritm(output_file, output_dir)
-    analiza_distributie_pitch(output_file, output_dir)
+
+    analiza_file(output_file, output_dir)

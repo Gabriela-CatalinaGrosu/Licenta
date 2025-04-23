@@ -2,9 +2,8 @@ import argparse
 import os
 from music21 import converter, instrument, note, chord, corpus
 from note import *
-from Licenta.note import *
-from Licenta.segmentare import *
-from Licenta.convers_input import *
+from segmentare import *
+from convers_input import *
 
 def main():
     """Procesează un fișier MusicXML sau MIDI și realizează analize muzicale."""
