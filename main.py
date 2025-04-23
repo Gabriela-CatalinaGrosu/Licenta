@@ -63,7 +63,7 @@ def main():
     name = os.path.splitext(os.path.basename(input_file))[0]
     output_dir = "analize"
     # durata_piesa(partitura)
-    # extrage_note_muzicale(partitura, name)
+    extrage_note_muzicale(partitura, name)
     # # # segmentare(output_file)
     segmentare(partitura, name)
     # segmentare_acorduri(partitura, name)
@@ -72,4 +72,3 @@ def main():
  
 if __name__ == '__main__':
     main()
-
