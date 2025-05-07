@@ -4,6 +4,7 @@ from music21 import converter, instrument, note, chord, corpus
 from note import *
 from segmentare import *
 from convers_input import *
+from pattern import *
 
 
 def durata_piesa(partitura):
@@ -36,7 +37,7 @@ def main():
     )
 
     args = parser.parse_args()
-    input_file = args.input_file
+    input_file = os.path.join("input", args.input_file)
     if input_file.endswith(('.mp3', '.wav')):
         input_file_midi = os.path.splitext(input_file)[0] + ".mid"
         input_file = convert_audio_to_midi(input_file, input_file_midi)
@@ -58,9 +59,12 @@ def main():
             return
 
     name = os.path.splitext(os.path.basename(input_file))[0]
-    output_dir = "analize"
-    extrage_note_muzicale(partitura, name)
-    segmentare(partitura, name)
+    output_dir = os.path.join("output", name)
+    os.makedirs(output_dir, exist_ok=True)
+    extrage_note_muzicale(partitura, name, output_dir)
+    segmentare(partitura, name, output_dir)
+    # extrage_note_muzicale_nr(partitura, name, output_dir)
+    # partitura.show('text')
 
     
  

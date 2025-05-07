@@ -3,6 +3,7 @@ import csv
 import os
 
 from analizare_note import analiza_file
+from pattern import *
 
 def analiza_voce(part, output_dir):
     """
@@ -27,7 +28,7 @@ def analiza_voce(part, output_dir):
 
 
     with open(nume_fisier, 'w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = ['pitch', 'frequency', 'octave', 'duration', 'offset']
+        fieldnames = ['pitch', 'pitch_num', 'frequency', 'octave', 'duration', 'offset']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         
@@ -35,6 +36,7 @@ def analiza_voce(part, output_dir):
             if isinstance(element, note.Note):
                 note_info = {
                     'pitch': str(element.pitch),
+                    'pitch_num': int(element.pitch.midi),
                     'frequency': element.pitch.frequency,
                     'octave': element.octave,
                     'duration': float(element.duration.quarterLength),
@@ -46,6 +48,7 @@ def analiza_voce(part, output_dir):
                 for n in element.pitches:
                     note_info = {
                         'pitch': str(n),
+                        'pitch_num': int(n.midi),
                         'frequency': n.frequency,
                         'octave': n.octave,
                         'duration': float(element.duration.quarterLength),
@@ -56,12 +59,14 @@ def analiza_voce(part, output_dir):
     
     return note_data, part_name
 
-def extrage_note_muzicale(partitura, name, output_dir = "analiza_note"):
+def extrage_note_muzicale(partitura, name, output_dir, output_subdir = "analiza_note"):
     """
     Extrage notele muzicale dintr-un fișier MusicXML și le salvează în fișiere CSV.
     """
 
     # Creează directorul de ieșire dacă nu există
+    os.makedirs(output_dir, exist_ok=True)
+    output_dir = os.path.join(output_dir, output_subdir)
     os.makedirs(output_dir, exist_ok=True)
     output_file = os.path.join(output_dir, f"{name}.csv")
 
@@ -70,13 +75,7 @@ def extrage_note_muzicale(partitura, name, output_dir = "analiza_note"):
         print(f"Fișierul CSV '{output_file}' există deja. Îl voi suprascrie.")
     else:
         print(f"Fișierul CSV '{output_file}' nu există. Îl voi crea.")
-        # cream fișierul CSV
-        with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
-            fieldnames = ['type', 'pitch', 'frequency', 'octave', 'duration', 'offset']
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            # writer.writerow({'type': 'Instrument', 'pitch': 'Unknown'})
-    # Încercăm să încărcăm fișierul XML folosind converter
+        
 
     all_notes = []
     
@@ -97,6 +96,7 @@ def extrage_note_muzicale(partitura, name, output_dir = "analiza_note"):
                 if isinstance(element, note.Note):
                     note_data.append({
                         'pitch': str(element.pitch),
+                        'pitch_num': int(element.pitch.midi),
                         'frequency': element.pitch.frequency,
                         'octave': element.octave,
                         'duration': float(element.duration.quarterLength),
@@ -106,6 +106,7 @@ def extrage_note_muzicale(partitura, name, output_dir = "analiza_note"):
                     for n in element.pitches:
                         note_data.append({
                             'pitch': str(n),
+                            'pitch_num': int(n.midi),
                             'frequency': n.frequency,
                             'octave': n.octave,
                             'duration': float(element.duration.quarterLength),
@@ -119,7 +120,7 @@ def extrage_note_muzicale(partitura, name, output_dir = "analiza_note"):
     try:
         # Salvează toate notele în fișierul CSV principal
         with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
-            fieldnames = ['type', 'pitch', 'frequency', 'octave', 'duration', 'offset']
+            fieldnames = ['type', 'pitch', 'pitch_num', 'frequency', 'octave', 'duration', 'offset']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             for item in all_notes:
@@ -129,6 +130,7 @@ def extrage_note_muzicale(partitura, name, output_dir = "analiza_note"):
                     writer.writerow({
                         'type': 'Note',
                         'pitch': item['pitch'],
+                        'pitch_num': item['pitch_num'],
                         'frequency': item['frequency'],
                         'octave': item['octave'],
                         'duration': item['duration'],
@@ -138,5 +140,6 @@ def extrage_note_muzicale(partitura, name, output_dir = "analiza_note"):
     except Exception as e:
         print(f"Eroare la scrierea în fișierul CSV '{output_file}': {e}")
 
-    analiza_file(output_file, output_dir)
+    # analiza_file(output_file, output_dir)
+    find_pattern(output_file, output_dir)
     

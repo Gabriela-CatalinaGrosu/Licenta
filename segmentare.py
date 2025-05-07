@@ -262,7 +262,7 @@ def segmentare_acorduri(partitura, name, output_dir="segmentare"):
         print(f"\tEroare la scrierea fișierului: {e}") 
 
 
-def segmentare(partitura, name, output_dir="segmentare"):
+def segmentare(partitura, name, output_dir, output_subdir="segmentare"):
     """
     Funcția principală pentru segmentarea partiturii.
     Apelează funcțiile de segmentare bazate pe tonalitate și acorduri.
@@ -270,6 +270,8 @@ def segmentare(partitura, name, output_dir="segmentare"):
     print(f"\tRealizez segmentarea partiturii '{name}'...")
     
     # Creează directorul de ieșire dacă nu există
+    os.makedirs(output_dir, exist_ok=True)
+    output_dir = os.path.join(output_dir, output_subdir)
     os.makedirs(output_dir, exist_ok=True)
 
     # Segmentare bazată pe tonalitate
