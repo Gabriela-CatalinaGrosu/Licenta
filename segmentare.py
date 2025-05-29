@@ -6,9 +6,9 @@ def analizare_tonalitate(partitura):
     """
     Segmentează o partitură în funcție de tonalitate.
     Args:
-        partitura: Obiect music21 Score, partitura de analizat.
+        partitura (music21.Score): Obiect music21 Score, partitura de analizat.
     Returns:
-        segmente: O listă de tuple (tonalitate, start_time, end_time).
+        segmente (list): O listă de tuple (tonalitate, start_time, end_time).
     """
 
     segmente = []
@@ -42,20 +42,19 @@ def analizare_tonalitate(partitura):
         segmente.append((tonalitate_curenta, start_time, end_time))
     return segmente
 
-def segmentare_tonalitate(partitura, name, output_dir="segmentare"):
+def segmentare_tonalitate(partitura, output_dir="segmentare"):
     """
     Segmentează o partitură bazată pe tonalitate, salvând rezultatele într-un fișier.
     Args:
-        partitura: Obiect music21 Score, partitura de analizat.
-        name: Numele fișierului de ieșire.
-        output_dir: Directorul în care se salvează fișierul.
+        partitura (music21.Score): Obiect music21 Score, partitura de analizat.
+        output_dir (str): Directorul în care se salvează fișierul.
     """
-    output_file = os.path.join(output_dir, f'{name}_tonalitate.csv')
+    output_file = os.path.join(output_dir, 'tonalitate.csv')
     dir = os.path.join(output_dir, 'tonalitate')
     # Creează directorul de ieșire pentru tonalitate dacă nu există
     os.makedirs(dir, exist_ok=True)
 
-    output_file = os.path.join(dir, f'{name}tonalitate.csv')
+    output_file = os.path.join(dir, 'tonalitate.csv')
     # Verifică dacă fișierul există
     if os.path.isfile(output_file):
         print(f"\tFișierul '{output_file}' există deja. Îl voi suprascrie.")
@@ -84,7 +83,10 @@ def repetitii(partitura):
     Segmentează o partitură bazată pe repetiții melodice, salvând rezultatele într-un fișier.
 
     Args:
-        partitura: Obiect music21 Score, partitura de analizat.
+        partitura (music21.Score): Obiect music21 Score, partitura de analizat.
+
+    Return:
+        segmente (list): o lista de tuple (fraza_idx, start_time, end_time)
     """
     print("\tRealizez segmentarea bazată pe repetiții melodice...")
     
@@ -151,13 +153,21 @@ def repetitii(partitura):
 
     
 
-def segmentare_repetitii(partitura, name, output_dir="segmentare"):
+def segmentare_repetitii(partitura, output_dir="segmentare"):
+    """
+    Segmenteaza partitura in functie de repetitii.
+
+    Args:
+        partitura (music21.Score): Obiect music21 Score, partitura de analizat.
+        output_dir (str): Directorul în care se salvează fișierul.
+    """
+
     # Creează directorul de ieșire dacă nu există
     os.makedirs(output_dir, exist_ok=True)
     dir = os.path.join(output_dir, 'repetitii')
     # Creează directorul de ieșire pentru repetitii dacă nu există
     os.makedirs(dir, exist_ok=True)
-    output_file = os.path.join(dir, f'{name}_repetitii.csv')
+    output_file = os.path.join(dir, '_repetitii.csv')
     # Verifică dacă fișierul există
     if os.path.isfile(output_file):
         print(f"\tFișierul '{output_file}' există deja. Îl voi suprascrie.")
@@ -186,7 +196,11 @@ def acorduri(partitura):
     Segmentează o partitură bazată pe acorduri, salvând rezultatele într-un fișier.
 
     Args:
-        partitura: Obiect music21 Score, partitura de analizat.
+        partitura (music21.Score): Obiect music21 Score, partitura de analizat.
+
+    Return:
+        list: O listă de tuple (figura, start_time, end_time) pentru fiecare segment.
+
     """
     print("\tRealizez segmentarea bazată pe acorduri...")
 
@@ -233,7 +247,15 @@ def acorduri(partitura):
     return segmente
 
 
-def segmentare_acorduri(partitura, name, output_dir="segmentare"):
+def segmentare_acorduri(partitura, output_dir="segmentare"):
+    """
+    Segmenteaza o partitura dupa acorduri.
+
+    Args:
+        partitura (music21.Score): Obiect music21 Score, partitura de analizat.
+        output_dir (str): Directorul în care se salvează fișierul.
+    """
+
     # Creează directorul de ieșire dacă nu există
     os.makedirs(output_dir, exist_ok=True)
 
@@ -241,7 +263,7 @@ def segmentare_acorduri(partitura, name, output_dir="segmentare"):
     # Creează directorul de ieșire pentru acorduri dacă nu există
     os.makedirs(dir, exist_ok=True)
     # Numele fișierului de ieșire
-    output_file = os.path.join(dir, f'{name}_acorduri.csv')
+    output_file = os.path.join(dir, 'acorduri.csv')
     # Verifică dacă fișierul există
     if os.path.isfile(output_file):
         print(f"\tFișierul '{output_file}' există deja. Îl voi suprascrie.")
@@ -262,12 +284,17 @@ def segmentare_acorduri(partitura, name, output_dir="segmentare"):
         print(f"\tEroare la scrierea fișierului: {e}") 
 
 
-def segmentare(partitura, name, output_dir, output_subdir="segmentare"):
+def segmentare(partitura, output_dir, output_subdir="segmentare"):
     """
     Funcția principală pentru segmentarea partiturii.
     Apelează funcțiile de segmentare bazate pe tonalitate și acorduri.
+
+    Args:
+        partitura (music21.Score): Obiect music21 Score, partitura de analizat.
+        output_dir (str): directorul principal unde sunt salvate informatiile
+        output_subdir (str): subdirectorul unde se salveaza segmentarea
     """
-    print(f"\tRealizez segmentarea partiturii '{name}'...")
+    print(f"\tRealizez segmentarea partiturii ...")
     
     # Creează directorul de ieșire dacă nu există
     os.makedirs(output_dir, exist_ok=True)
@@ -275,10 +302,10 @@ def segmentare(partitura, name, output_dir, output_subdir="segmentare"):
     os.makedirs(output_dir, exist_ok=True)
 
     # Segmentare bazată pe tonalitate
-    segmentare_tonalitate(partitura, name, output_dir)
+    segmentare_tonalitate(partitura, output_dir)
 
     # Segmentare bazată pe acorduri
-    segmentare_acorduri(partitura, name, output_dir)
+    segmentare_acorduri(partitura, output_dir)
 
     # Segmentare bazată pe repetiții
-    segmentare_repetitii(partitura, name, output_dir)
+    segmentare_repetitii(partitura, output_dir)

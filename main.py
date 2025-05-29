@@ -3,11 +3,16 @@ import os
 from music21 import converter, instrument, note, chord, corpus
 from note import *
 from segmentare import *
-from convers_input import *
 from pattern import *
 
 
 def durata_piesa(partitura):
+    """
+    Calculeaza durata piesei si o afiseaza.
+
+    Args:
+        partitura (music21.Score): Obiect music21 Score, partitura de analizat.
+    """
     tempo_markers = partitura.flat.getElementsByClass('MetronomeMark')
 
     # Dacă există un tempo definit, extrage BPM-ul
@@ -38,16 +43,14 @@ def main():
 
     args = parser.parse_args()
     input_file = os.path.join("input", args.input_file)
-    if input_file.endswith(('.mp3', '.wav')):
-        input_file_midi = os.path.splitext(input_file)[0] + ".mid"
-        input_file = convert_audio_to_midi(input_file, input_file_midi)
-        if not os.path.exists(input_file):
-            print(f"Eroare: Fișierul {input_file} nu a fost creat!")
-            return
-    elif not input_file.endswith(('.xml', '.mid', '.midi')):
-        print("Eroare: Fișierul trebuie să fie în format MusicXML (.xml) sau MIDI (.mid, .midi)!")
+    if not os.path.exists(input_file):
+        print(f"Eroare: Fișierul {input_file} nu a fost creat!")
         return
     
+    if not input_file.endswith(('.xml', '.mid', '.midi')):
+        print("Eroare: Fișierul trebuie să fie în format MusicXML (.xml) sau MIDI (.mid, .midi)!")
+        return
+        
     try:
         # Încărcați fișierul
         partitura = converter.parse(input_file)
@@ -63,8 +66,6 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
     extrage_note_muzicale(partitura, name, output_dir)
     segmentare(partitura, name, output_dir)
-    # extrage_note_muzicale_nr(partitura, name, output_dir)
-    # partitura.show('text')
 
     
  

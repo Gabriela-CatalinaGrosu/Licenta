@@ -8,6 +8,11 @@ from grafice import *
 def analiza_distributie_pitch(note, instr, output_dir="analize"):
     """
     Analizează distribuția înălțimilor și salvează rezultatele + grafice.
+
+    Args:
+        note (pd.DataFrame): notele piesei
+        instr (str): vocea curentă
+        output_dir (str): directorul unde se salvează fișierele
     """
     # Distribuția pitch-urilor
     pitch_counts = note['pitch'].value_counts().reset_index()
@@ -39,6 +44,11 @@ def analiza_distributie_pitch(note, instr, output_dir="analize"):
 def analiza_ritm(note, instr, output_dir="analize"):
     """
     Analizează distribuția duratelor și salvează rezultatele + grafice.
+
+    Args:
+        note (pd.DataFrame): notele piesei
+        instr (str): vocea curentă
+        output_dir (str): directorul unde se salvează fișierele
     """
     
     # Distribuția duratelor
@@ -71,6 +81,13 @@ def analiza_ritm(note, instr, output_dir="analize"):
 def analiza_densitate(note, instr, output_dir="analize", bin_size=1.0):
     """
     Analizează densitatea notelor în timp și salvează rezultatele + grafice.
+
+    Args:
+        note (pd.DataFrame): notele piesei
+        instr (str): vocea curentă
+        output_dir (str): directorul unde se salvează fișierele
+        bin_size (float): dimensiunea bin-ului pentru analiza densității
+
     """
     # Grupare pe intervale de timp
     note = note.copy()
@@ -89,6 +106,13 @@ def analiza_densitate(note, instr, output_dir="analize", bin_size=1.0):
 
 
 def analiza_file(csv_file, output_dir = "analize"):
+    """
+    Functia principala pentru a analiza notele din partitura.
+
+    Args:
+        csv_file (str): fisierul de intrare CSV
+        output_dir (str): directorul de iesire pentru analize
+    """
 
     # Creează directorul de ieșire dacă nu există
     os.makedirs(output_dir, exist_ok=True)

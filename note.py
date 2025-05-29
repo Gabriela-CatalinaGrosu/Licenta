@@ -7,7 +7,14 @@ from pattern import *
 
 def analiza_voce(part, output_dir):
     """
-    Analizează un instrument dintr-o partitură și returnează datele notelor.
+    Analizează un instrument (voce) dintr-o partitură și returnează datele notelor.
+
+    Args:
+        part (str): instrumentul (vocea) de analizat.
+        output_dir (str): directorul unde se salveaza informatia.
+
+    Return:
+        tuplu (note_data (list), part_name (str)): notele corespunzătoare instrumentului/vocii, numele instrumentului/vocii
     """
     # Numele instrumentului sau fallback
     part_name = part.partName if part.partName else 'Unknown'
@@ -62,6 +69,12 @@ def analiza_voce(part, output_dir):
 def extrage_note_muzicale(partitura, name, output_dir, output_subdir = "analiza_note"):
     """
     Extrage notele muzicale dintr-un fișier MusicXML și le salvează în fișiere CSV.
+
+    Args:
+        partitura (music21.Score): Obiect music21 Score, partitura de analizat.
+        name (str): numele fisierului de intrare
+        output_dir (str): directorul principal unde sunt salvate informatiile
+        output_subdir (str): subdirectorul unde se salveaza segmentarea
     """
 
     # Creează directorul de ieșire dacă nu există
@@ -140,6 +153,6 @@ def extrage_note_muzicale(partitura, name, output_dir, output_subdir = "analiza_
     except Exception as e:
         print(f"Eroare la scrierea în fișierul CSV '{output_file}': {e}")
 
-    # analiza_file(output_file, output_dir)
-    find_pattern(output_file, output_dir)
+    analiza_file(output_file, output_dir)
+    find_pattern(output_file, output_dir, partitura)
     
