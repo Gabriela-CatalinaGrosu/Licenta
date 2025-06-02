@@ -1,32 +1,36 @@
 import csv
 import os
+import matplotlib.pyplot as plt
 from music21 import *
 
 def analizare_tonalitate(partitura):
     """
     Segmentează o partitură în funcție de tonalitate.
+
     Args:
         partitura (music21.Score): Obiect music21 Score, partitura de analizat.
-    Returns:
-        segmente (list): O listă de tuple (tonalitate, start_time, end_time).
-    """
 
+    Returns:
+        list: Lista de segmente de tonalitate, fiecare segment fiind un tuplu (tonalitate, start, end).
+    """
     segmente = []
     masura_curenta = []
     tonalitate_curenta = None
+
+    durata_totala = partitura.duration.quarterLength
 
     for masura in partitura.parts[0].getElementsByClass('Measure'):
         try:
             analiza_tonalitate = masura.analyze('key')
         except:
-            # Dacă analiza eșuează, continuăm cu tonalitatea curentă
             analiza_tonalitate = tonalitate_curenta if tonalitate_curenta else key.Key('C')
 
-        # Verifică dacă tonalitatea s-a schimbat
         if analiza_tonalitate != tonalitate_curenta and masura_curenta:
             start_time = masura_curenta[0].offset
             ultima_masura = masura_curenta[-1]
             end_time = ultima_masura.offset + ultima_masura.duration.quarterLength
+            # Limităm end_time la durata totală a partiturii
+            end_time = min(end_time, durata_totala)
             segmente.append((tonalitate_curenta, start_time, end_time))
             masura_curenta = [masura]
             tonalitate_curenta = analiza_tonalitate
@@ -34,28 +38,30 @@ def analizare_tonalitate(partitura):
             masura_curenta.append(masura)
             tonalitate_curenta = analiza_tonalitate
 
-    # Adaugă ultimul segment
     if masura_curenta:
         start_time = masura_curenta[0].offset
         ultima_masura = masura_curenta[-1]
         end_time = ultima_masura.offset + ultima_masura.duration.quarterLength
+        # Limităm end_time la durata totală a partiturii
+        end_time = min(end_time, durata_totala)
         segmente.append((tonalitate_curenta, start_time, end_time))
     return segmente
 
-def segmentare_tonalitate(partitura, output_dir="segmentare"):
+def segmentare_tonalitate(partitura, output_dir):
     """
     Segmentează o partitură bazată pe tonalitate, salvând rezultatele într-un fișier.
+
     Args:
         partitura (music21.Score): Obiect music21 Score, partitura de analizat.
-        output_dir (str): Directorul în care se salvează fișierul.
-    """
-    output_file = os.path.join(output_dir, 'tonalitate.csv')
-    dir = os.path.join(output_dir, 'tonalitate')
-    # Creează directorul de ieșire pentru tonalitate dacă nu există
-    os.makedirs(dir, exist_ok=True)
+        output_dir (str): directorul unde sunt salvate informațiile (output_dir/output_subdir).
 
+    Returns:
+        list: Lista de segmente de tonalitate, fiecare segment fiind un tuplu (tonalitate, start, end).
+    """
+    dir = os.path.join(output_dir, 'tonalitate')
+    os.makedirs(dir, exist_ok=True)
     output_file = os.path.join(dir, 'tonalitate.csv')
-    # Verifică dacă fișierul există
+
     if os.path.isfile(output_file):
         print(f"\tFișierul '{output_file}' există deja. Îl voi suprascrie.")
     else:
@@ -67,222 +73,213 @@ def segmentare_tonalitate(partitura, output_dir="segmentare"):
         with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(['start', 'end', 'segment_name'])
-
             for idx, (tonalitate, start, end) in enumerate(segmente, 1):
                 tonalitate_str = str(tonalitate).replace(' ', '_') if tonalitate else 'Unknown'
-                writer.writerow([f"{start:.3f}", f"{end:.3f}", f"Seg#{idx}_Tonalitate_{tonalitate_str}"])
-
+                writer.writerow([f"{start:.3f}", f"{end:.3f}", f"Secțiunea {idx}: {tonalitate_str}"])
         print(f"\tRezultatele au fost salvate în fișierul: '{output_file}'")
     except Exception as e:
         print(f"Eroare la scrierea în fișierul CSV: {e}")
 
-    
-
-def repetitii(partitura):
-    """
-    Segmentează o partitură bazată pe repetiții melodice, salvând rezultatele într-un fișier.
-
-    Args:
-        partitura (music21.Score): Obiect music21 Score, partitura de analizat.
-
-    Return:
-        segmente (list): o lista de tuple (fraza_idx, start_time, end_time)
-    """
-    print("\tRealizez segmentarea bazată pe repetiții melodice...")
-    
-    # Colectează note și acorduri
-    note_si_acorduri = partitura.recurse().getElementsByClass((note.Note, chord.Chord))
-    if not note_si_acorduri:
-        print("\tEroare: Partitura nu conține note sau acorduri!")
-        return
-
-    segmente = []
-    fraze = []
-    lungime_fraza = 8
-
-    # Iterează prin fraze cu suprapunere minimă
-    for i in range(0, len(note_si_acorduri) - lungime_fraza + 1, lungime_fraza // 2):
-        fraza = note_si_acorduri[i:i + lungime_fraza]
-        if len(fraza) < lungime_fraza:
-            continue
-
-        # Extrage înălțimile (pitches) MIDI
-        pitches = []
-        for elem in fraza:
-            try:
-                if isinstance(elem, note.Note):
-                    pitches.append(elem.pitch.midi)
-                elif isinstance(elem, chord.Chord):
-                    if elem.pitches:  # Verifică dacă acordul are înălțimi
-                        pitches.extend(p.midi for p in elem.pitches)
-            except:
-                continue  # Ignoră elementele invalide
-
-        if not pitches:
-            continue  # Ignoră frazele fără înălțimi valide
-
-        # Calculează timpii
-        start_time = fraza[0].offset
-        end_time = fraza[-1].offset + fraza[-1].duration.quarterLength
-        if end_time <= start_time:
-            continue  # Ignoră segmentele invalide
-
-        # Caută fraza în lista existentă
-        fraza_gasita = False
-        for idx, fraza_veche in enumerate(fraze):
-            if pitches == fraza_veche['pitches']:
-                # Adaugă segment doar dacă nu e duplicat
-                if not any(abs(start_time - s[1]) < 0.01 and abs(end_time - s[2]) < 0.01 for s in segmente):
-                    segmente.append((idx, start_time, end_time))
-                fraza_gasita = True
-                break
-
-        if not fraza_gasita:
-            fraze.append({'pitches': pitches})
-            segmente.append((len(fraze) - 1, start_time, end_time))
-
-    # Adaugă segmente rămase, dacă există
-    if len(note_si_acorduri) > 0 and segmente and segmente[-1][2] < note_si_acorduri[-1].offset:
-        start_time = segmente[-1][2]
-        end_time = note_si_acorduri[-1].offset + note_si_acorduri[-1].duration.quarterLength
-        segmente.append((len(fraze), start_time, end_time))
-
-    # Sortează segmentele după timpul de început
-    segmente.sort(key=lambda x: x[1])
     return segmente
 
-    
-
-def segmentare_repetitii(partitura, output_dir="segmentare"):
+def acorduri(partitura):
     """
-    Segmenteaza partitura in functie de repetitii.
+    Segmentează o partitură bazată pe acorduri, combinând notele simultane din toate vocile.
 
     Args:
         partitura (music21.Score): Obiect music21 Score, partitura de analizat.
-        output_dir (str): Directorul în care se salvează fișierul.
+    
+    Returns:
+        list: Lista de segmente de acorduri, fiecare segment fiind un tuplu (figura, start, end).
     """
-
-    # Creează directorul de ieșire dacă nu există
-    os.makedirs(output_dir, exist_ok=True)
-    dir = os.path.join(output_dir, 'repetitii')
-    # Creează directorul de ieșire pentru repetitii dacă nu există
-    os.makedirs(dir, exist_ok=True)
-    output_file = os.path.join(dir, '_repetitii.csv')
-    # Verifică dacă fișierul există
-    if os.path.isfile(output_file):
-        print(f"\tFișierul '{output_file}' există deja. Îl voi suprascrie.")
-    else:
-        print(f"\tFișierul '{output_file}' nu există. Îl voi crea.")
+    print("\tRealizez segmentarea bazată pe acorduri...")
+    segmente = []
     
-    segmente = repetitii(partitura)
+    # Colectăm toate notele din toate părțile
+    note_toate = []
+    for part in partitura.parts:
+        for n in part.recurse().getElementsByClass('Note'):
+            note_toate.append((n.offset, n.offset + n.duration.quarterLength, n.pitch, part))
 
-    # Salvează rezultatele
-    try:
-        with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(['start', 'end', 'segment_name'])
-            for idx, (fraza_idx, start, end) in enumerate(segmente, 1):
-                writer.writerow([f"{start:.3f}", f"{end:.3f}", f"Seg#{idx}_Repetitie_{fraza_idx}"])
+    note_toate.sort(key=lambda x: (x[0], x[1]))
+
+    if not note_toate:
+        print("\tEroare: Nu s-au găsit note în partitură!")
+        return []
+
+    # Grupăm notele simultane pentru a forma acorduri
+    i = 0
+    while i < len(note_toate):
+        start_time = note_toate[i][0]
+        end_time = note_toate[i][1]
+        pitches = [note_toate[i][2]]
         
-        print(f"\tRezultatele au fost salvate în fișierul: '{output_file}'")
-    except Exception as e:
-        print(f"\tEroare la scrierea fișierului: {e}")
+        # Cautăm note care încep aproape simultan (toleranță mărită la 0.1)
+        j = i + 1
+        while j < len(note_toate) and abs(note_toate[j][0] - start_time) < 0.1:
+            pitches.append(note_toate[j][2])
+            end_time = min(end_time, note_toate[j][1])
+            j += 1
 
+        # Creăm un acord din notele simultane
+        try:
+            acord = chord.Chord(pitches)
+            acord.duration = duration.Duration(end_time - start_time)
+            # Relaxăm condițiile: acceptăm acorduri cu cel puțin 3 note
+            if len(pitches) >= 3 and (end_time - start_time) >= 0.25:
+                simbol = acord.pitchedCommonName  # Ex. "C major"
+                segmente.append((simbol, start_time, end_time))
+                print(f"\tAcord detectat: {simbol} de la {start_time} la {end_time}")
+            else:
+                print(f"\tAcord ignorat (prea puține note sau durată scurtă): {pitches}")
+        except Exception as e:
+            print(f"\tEroare la crearea acordului: {e}, pitches: {pitches}")
 
+        i = j
 
-    
-def acorduri(partitura):
+    if not segmente:
+        print("\tEroare: Nu s-au găsit acorduri semnificative!")
+        # Fallback: Încercăm analiza armonică
+        print("\tÎncercăm analiza armonică ca fallback...")
+        try:
+            roman = partitura.analyze('roman')
+            for event in roman.recurse().getElementsByClass('RomanNumeral'):
+                start_time = event.offset
+                end_time = start_time + event.duration.quarterLength
+                if end_time - start_time >= 0.25:
+                    segmente.append((event.figure, start_time, end_time))
+                    print(f"\tAcord roman detectat: {event.figure} de la {start_time} la {end_time}")
+        except Exception as e:
+            print(f"\tEroare la analiza armonică: {e}")
+
+    if not segmente:
+        print("\tEroare finală: Tot nu s-au găsit acorduri!")
+        return []
+
+    segmente.sort(key=lambda x: x[1])
+    print(f"\tSegmente acorduri detectate: {segmente}")
+    return segmente
+
+def segmentare_acorduri(partitura, output_dir):
     """
     Segmentează o partitură bazată pe acorduri, salvând rezultatele într-un fișier.
 
     Args:
         partitura (music21.Score): Obiect music21 Score, partitura de analizat.
+        output_dir (str): directorul unde sunt salvate informațiile (output_dir/output_subdir).
 
-    Return:
-        list: O listă de tuple (figura, start_time, end_time) pentru fiecare segment.
-
+    Returns:
+        list: Lista de segmente de acorduri, fiecare segment fiind un tuplu (figura, start, end).
     """
-    print("\tRealizez segmentarea bazată pe acorduri...")
-
-# Colectează acordurile din partitură
-    acorduri = partitura.recurse().getElementsByClass('Chord')
-    segmente = []
-
-    # Dacă există acorduri, creează segmente bazate pe ele
-    if acorduri:
-        for acord in acorduri:
-            try:
-                # Identifică figura acordului (ex. C, G7, Am)
-                figura = acord.figure
-                # Considerăm doar acorduri semnificative (majore, minore, septime, diminuate)
-                if (acord.isMajorTriad() or 
-                    acord.isMinorTriad() or 
-                    acord.isDominantSeventh() or 
-                    acord.isDiminishedSeventh()):
-                    start_time = acord.offset
-                    end_time = acord.offset + acord.duration.quarterLength
-                    if end_time > start_time:  # Ignoră segmentele de lungime zero
-                        segmente.append((figura, start_time, end_time))
-            except:
-                continue  # Ignoră acordurile invalide
-    else:
-        # Fallback: Dacă nu există acorduri, folosim notele
-        print("\tNu s-au găsit acorduri. Folosesc notele ca fallback...")
-        note_si_acorduri = partitura.recurse().getElementsByClass((note.Note, chord.Chord))
-        for elem in note_si_acorduri:
-            start_time = elem.offset
-            end_time = elem.offset + elem.duration.quarterLength
-            if end_time > start_time:
-                # Pentru note, folosim pitch-ul ca "figura"
-                figura = elem.pitch.nameWithOctave if isinstance(elem, note.Note) else "Unknown"
-                segmente.append((figura, start_time, end_time))
-
-    # Dacă nu s-au găsit segmente valide, avertizează
-    if not segmente:
-        print("\tEroare: Nu s-au găsit acorduri sau note valide pentru segmentare!")
-        return
-
-    # Sortează segmentele după timpul de început
-    segmente.sort(key=lambda x: x[1])
-    return segmente
-
-
-def segmentare_acorduri(partitura, output_dir="segmentare"):
-    """
-    Segmenteaza o partitura dupa acorduri.
-
-    Args:
-        partitura (music21.Score): Obiect music21 Score, partitura de analizat.
-        output_dir (str): Directorul în care se salvează fișierul.
-    """
-
-    # Creează directorul de ieșire dacă nu există
-    os.makedirs(output_dir, exist_ok=True)
-
     dir = os.path.join(output_dir, 'acorduri')
-    # Creează directorul de ieșire pentru acorduri dacă nu există
     os.makedirs(dir, exist_ok=True)
-    # Numele fișierului de ieșire
     output_file = os.path.join(dir, 'acorduri.csv')
-    # Verifică dacă fișierul există
+
     if os.path.isfile(output_file):
         print(f"\tFișierul '{output_file}' există deja. Îl voi suprascrie.")
     else:
         print(f"\tFișierul '{output_file}' nu există. Îl voi crea.")
 
     segmente = acorduri(partitura)
-    # Salvează rezultatele
+    if not segmente:
+        print(f"\tNu s-au găsit segmente pentru acorduri.")
+        return
+
     try:
         with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(['start', 'end', 'segment_name'])
             for idx, (figura, start, end) in enumerate(segmente, 1):
                 figura_str = figura.replace(' ', '_') if figura else 'Unknown'
-                writer.writerow([f"{start:.3f}", f"{end:.3f}", f"Seg#{idx}_Acord_{figura_str}"])
-        print(f"\tRezultatele au fost salvate în fișierul: '{dir}'")
+                writer.writerow([f"{start:.3f}", f"{end:.3f}", f"Acord_{idx}_{figura_str}"])
+        print(f"\tRezultatele au fost salvate în fișierul: '{output_file}'")
     except Exception as e:
-        print(f"\tEroare la scrierea fișierului: {e}") 
+        print(f"\tEroare la scrierea fișierului: {e}")
 
+    return segmente
+
+def vizualizare_tonalitate(partitura, output_dir):
+    """
+    Creează un grafic pentru segmentele de tonalitate.
+
+    Args:
+        partitura (music21.Score): Obiect music21 Score, partitura de analizat.
+        output_dir (str): directorul unde sunt salvate informațiile (output_dir/output_subdir).
+    """
+    segmente = segmentare_tonalitate(partitura, output_dir)
+    if not segmente:
+        print("\tNu există segmente de tonalitate pentru vizualizare.")
+        return
+
+    total_duration = partitura.duration.quarterLength
+    colors = ['skyblue', 'lightgreen', 'lightcoral']
+
+    fig, ax = plt.subplots(figsize=(15, 3))
+    for idx, (tonalitate, start, end) in enumerate(segmente):
+        tonalitate_str = str(tonalitate) if tonalitate else 'Unknown'
+        ax.barh(0, end - start, left=start, height=0.4, color=colors[idx % len(colors)],
+                label=tonalitate_str if idx < len(colors) else "")
+        ax.text((start + end) / 2, 0, tonalitate_str, ha='center', va='center', fontsize=10, color='black')
+
+    ax.set_yticks([0])
+    ax.set_yticklabels(['Tonalitate'])
+    ax.set_xlabel('Timp (quarterLength)')
+    ax.set_xlim(0, total_duration - 1)
+    ax.set_ylim(-0.5, 0.5)
+    ax.grid(True, axis='x', linestyle='--', alpha=0.5)
+
+    dir = os.path.join(output_dir, 'vizualizare')
+    os.makedirs(dir, exist_ok=True)
+    output_file = os.path.join(dir, 'tonalitate.png')
+    plt.tight_layout()
+    plt.savefig(output_file)
+    plt.close()
+    print(f"\tVizualizarea tonalității a fost salvată în: '{output_file}'")
+
+def vizualizare_acorduri(partitura, output_dir):
+    """
+    Creează un grafic pentru segmentele de acorduri.
+
+    Args:
+        partitura (music21.Score): Obiect music21 Score, partitura de analizat.
+        output_dir (str): directorul unde sunt salvate informațiile (output_dir/output_subdir).
+    """
+    segmente = segmentare_acorduri(partitura, output_dir)
+    if not segmente:
+        print("\tNu există segmente de acorduri pentru vizualizare.")
+        return
+
+    total_duration = partitura.duration.quarterLength
+    colors = plt.cm.Paired.colors
+
+    fig, ax = plt.subplots(figsize=(15, 3))
+    for idx, (figura, start, end) in enumerate(segmente):
+        color = colors[idx % len(colors)]
+        if 'major' in figura.lower():
+            color = 'lightblue'
+        elif 'minor' in figura.lower():
+            color = 'lightcoral'
+        elif 'seventh' in figura.lower():
+            color = 'lightgreen'
+
+        ax.barh(0, end - start, left=start, height=0.4, color=color)
+        if end - start >= 0.5:
+            ax.text((start + end) / 2, 0, figura, ha='center', va='center', fontsize=8, color='black', rotation=45)
+
+    ax.set_yticks([0])
+    ax.set_yticklabels(['Acorduri'])
+    ax.set_xlabel('Timp (quarterLength)')
+    ax.set_xlim(0, total_duration - 1)
+    ax.set_ylim(-0.5, 0.5)
+    ax.grid(True, axis='x', linestyle='--', alpha=0.7)
+
+    dir = os.path.join(output_dir, 'vizualizare')
+    os.makedirs(dir, exist_ok=True)
+    output_file = os.path.join(dir, 'acorduri.png')
+    plt.tight_layout()
+    plt.savefig(output_file)
+    plt.close()
+    print(f"\tVizualizarea acordurilor a fost salvată în: '{output_file}'")
 
 def segmentare(partitura, output_dir, output_subdir="segmentare"):
     """
@@ -291,21 +288,20 @@ def segmentare(partitura, output_dir, output_subdir="segmentare"):
 
     Args:
         partitura (music21.Score): Obiect music21 Score, partitura de analizat.
-        output_dir (str): directorul principal unde sunt salvate informatiile
-        output_subdir (str): subdirectorul unde se salveaza segmentarea
+        output_dir (str): directorul principal unde sunt salvate informațiile.
+        output_subdir (str): subdirectorul unde se salvează segmentarea.
     """
-    print(f"\tRealizez segmentarea partiturii ...")
+    print(f"\tRealizez segmentarea partiturii...")
     
     # Creează directorul de ieșire dacă nu există
     os.makedirs(output_dir, exist_ok=True)
-    output_dir = os.path.join(output_dir, output_subdir)
-    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, output_subdir)
+    os.makedirs(output_path, exist_ok=True)
 
-    # Segmentare bazată pe tonalitate
-    segmentare_tonalitate(partitura, output_dir)
+    if not partitura.parts:
+        print("\tEroare: Partitura nu conține părți!")
+        return
 
-    # Segmentare bazată pe acorduri
-    segmentare_acorduri(partitura, output_dir)
-
-    # Segmentare bazată pe repetiții
-    segmentare_repetitii(partitura, output_dir)
+    # Apelează funcțiile de segmentare și vizualizare
+    vizualizare_tonalitate(partitura, output_path)
+    vizualizare_acorduri(partitura, output_path)

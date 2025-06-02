@@ -1,6 +1,6 @@
 import argparse
 import os
-from music21 import converter, instrument, note, chord, corpus
+from music21 import converter, corpus
 from note import *
 from segmentare import *
 from pattern import *
@@ -65,7 +65,7 @@ def main():
     output_dir = os.path.join("output", name)
     os.makedirs(output_dir, exist_ok=True)
     extrage_note_muzicale(partitura, name, output_dir)
-    segmentare(partitura, name, output_dir)
+    segmentare(partitura, output_dir)
 
     
  
