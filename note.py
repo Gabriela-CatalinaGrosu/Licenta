@@ -5,6 +5,31 @@ import os
 from analizare_note import analiza_file
 from pattern import *
 
+def durata_piesa(partitura):
+    """
+    Calculeaza durata piesei si o afiseaza.
+
+    Args:
+        partitura (music21.Score): Obiect music21 Score, partitura de analizat.
+    """
+    tempo_markers = partitura.flat.getElementsByClass('MetronomeMark')
+
+    # Dacă există un tempo definit, extrage BPM-ul
+    if tempo_markers:
+        bpm = tempo_markers[0].number
+
+    quarter_length = partitura.flat.quarterLength
+    if bpm is not None:
+        # Calcularea duratei totale a piesei în secunde
+        total_duration = partitura.duration.quarterLength  # Durata totală în "lungimi de cvartă"
+        seconds_per_quarter = 60 / bpm  # Cât timp durează o cvartă de notă (în secunde)
+        total_seconds = total_duration * seconds_per_quarter
+        print(f"Timpul total al piesei este: {total_seconds:.2f} secunde")
+        print(f"Timpul total al piesei este: {quarter_length:.2f} măsuri")
+    else:
+        print("Nu s-a găsit un tempo definit. Timpul nu poate fi calculat.")
+        print(f"Timpul total al piesei este: {quarter_length:.2f} măsuri (fără tempo definit)")
+
 def analiza_voce(part, output_dir):
     """
     Analizează un instrument (voce) dintr-o partitură și returnează datele notelor.
@@ -89,7 +114,7 @@ def extrage_note_muzicale(partitura, name, output_dir, output_subdir = "analiza_
     else:
         print(f"Fișierul CSV '{output_file}' nu există. Îl voi crea.")
         
-
+    durata_piesa(partitura)
     all_notes = []
     
     try:

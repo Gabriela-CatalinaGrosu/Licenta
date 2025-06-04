@@ -330,4 +330,4 @@ def find_pattern(csv_file, output_dir, partitura):
     json_data = save_results(results, voices, output_file, output_dir)
 
     total_duration = int(partitura.flat.quarterLength) - 1
-    generate_graphic(output_file, total_duration, output_dir)
+    generate_all_graphics(output_file, total_duration, output_dir)
