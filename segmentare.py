@@ -290,6 +290,9 @@ def segmentare(partitura, output_dir, output_subdir="segmentare"):
         partitura (music21.Score): Obiect music21 Score, partitura de analizat.
         output_dir (str): directorul principal unde sunt salvate informațiile.
         output_subdir (str): subdirectorul unde se salvează segmentarea.
+
+    Return:
+        output_path (str): directorul unde sunt salvate segmentele de tonalitate și acorduri.
     """
     print(f"\tRealizez segmentarea partiturii...")
     
@@ -305,3 +308,5 @@ def segmentare(partitura, output_dir, output_subdir="segmentare"):
     # Apelează funcțiile de segmentare și vizualizare
     vizualizare_tonalitate(partitura, output_path)
     vizualizare_acorduri(partitura, output_path)
+
+    return output_path

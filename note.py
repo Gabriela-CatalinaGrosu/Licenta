@@ -91,7 +91,7 @@ def analiza_voce(part, output_dir):
     
     return note_data, part_name
 
-def extrage_note_muzicale(partitura, name, output_dir, output_subdir = "analiza_note"):
+def extrage_note_muzicale(partitura, name, output_dir, output_subdir = "note"):
     """
     Extrage notele muzicale dintr-un fișier MusicXML și le salvează în fișiere CSV.
 
@@ -100,6 +100,10 @@ def extrage_note_muzicale(partitura, name, output_dir, output_subdir = "analiza_
         name (str): numele fisierului de intrare
         output_dir (str): directorul principal unde sunt salvate informatiile
         output_subdir (str): subdirectorul unde se salveaza segmentarea
+
+    Return:
+        output_file (str): calea către fișierul CSV cu notele extrase.
+        output_dir (str): directorul unde sunt salvate notele.
     """
 
     # Creează directorul de ieșire dacă nu există
@@ -178,6 +182,7 @@ def extrage_note_muzicale(partitura, name, output_dir, output_subdir = "analiza_
     except Exception as e:
         print(f"Eroare la scrierea în fișierul CSV '{output_file}': {e}")
 
-    analiza_file(output_file, output_dir)
-    find_pattern(output_file, output_dir, partitura)
+    # analiza_file(output_file, output_dir)
+    # find_pattern(output_file, output_dir, partitura)
+    return output_file, output_dir
     

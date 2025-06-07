@@ -304,7 +304,7 @@ def save_results(results, voices, output_file, output_dir):
     
     return json_data
 
-def find_pattern(csv_file, output_dir, partitura):
+def find_pattern(csv_file, output_dir, partitura, output_subdir = "analiza_pattern"):
     """
     Rulează algoritmul pentru toate lungimile și pozițiile.
 
@@ -312,7 +312,17 @@ def find_pattern(csv_file, output_dir, partitura):
         csv_file (str): Calea către fișierul CSV de intrare.
         output_dir (str): Directorul în care se salvează rezultatele.
         partitura (music21.Score): Obiect music21 Score, partitura de analizat.
+        output_subdir (str): Subdirectorul în care se salvează rezultatele analizei.
+
+    Return:
+        output_dir (str): Directorul în care sunt salvate rezultatele analizei.
     """
+    # Creează directorul de ieșire dacă nu există
+    os.makedirs(output_dir, exist_ok=True)
+    output_dir = os.path.join(output_dir, output_subdir)
+    os.makedirs(output_dir, exist_ok=True)
+
+
     voices = load_triplets(csv_file)
     voice_order = ['Soprano', 'Alto', 'Tenor', 'Bass']
     
@@ -331,3 +341,5 @@ def find_pattern(csv_file, output_dir, partitura):
 
     total_duration = int(partitura.flat.quarterLength) - 1
     generate_all_graphics(output_file, total_duration, output_dir)
+
+    return output_dir

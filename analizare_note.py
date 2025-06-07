@@ -105,22 +105,28 @@ def analiza_densitate(note, instr, output_dir="analize", bin_size=1.0):
     grafic_densitate(instr, density, instrument_dir)
 
 
-def analiza_file(csv_file, output_dir = "analize"):
+def analiza_file(csv_file, output_dir, output_subdir = "analiza_note"):
     """
     Functia principala pentru a analiza notele din partitura.
 
     Args:
         csv_file (str): fisierul de intrare CSV
         output_dir (str): directorul de iesire pentru analize
+        output_subdir (str): subdirectorul unde se salveaza analizele
+
+    Return:
+        output_dir (str): directorul unde sunt salvate analizele
     """
 
     # Creează directorul de ieșire dacă nu există
+    os.makedirs(output_dir, exist_ok=True)
+    output_dir = os.path.join(output_dir, output_subdir)
     os.makedirs(output_dir, exist_ok=True)
 
     # Verifică dacă fișierul CSV există deja
     if not os.path.isfile(csv_file):
         print(f"Fișierul CSV '{csv_file}' nu există. Îl voi crea.")
-        return
+        return output_dir
     else:
         file = pd.read_csv(csv_file)
         note = file[file['type'] == 'Note']
@@ -136,4 +142,5 @@ def analiza_file(csv_file, output_dir = "analize"):
             analiza_distributie_pitch(note_instr, instr, output_dir)
             analiza_ritm(note_instr, instr, output_dir)
             analiza_densitate(note_instr, instr, output_dir)
-            
+
+    return output_dir
