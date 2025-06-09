@@ -2,9 +2,6 @@ from music21 import *
 import csv
 import os
 
-from analizare_note import analiza_file
-from pattern import *
-
 def durata_piesa(partitura):
     """
     Calculeaza durata piesei si o afiseaza.
@@ -182,7 +179,5 @@ def extrage_note_muzicale(partitura, name, output_dir, output_subdir = "note"):
     except Exception as e:
         print(f"Eroare la scrierea în fișierul CSV '{output_file}': {e}")
 
-    # analiza_file(output_file, output_dir)
-    # find_pattern(output_file, output_dir, partitura)
     return output_file, output_dir
     

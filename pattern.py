@@ -304,7 +304,7 @@ def save_results(results, voices, output_file, output_dir):
     
     return json_data
 
-def find_pattern(csv_file, output_dir, partitura, output_subdir = "analiza_pattern"):
+def pattern(csv_file, output_dir, partitura, output_subdir = "analiza_pattern"):
     """
     Rulează algoritmul pentru toate lungimile și pozițiile.
 

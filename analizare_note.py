@@ -20,7 +20,7 @@ def analiza_distributie_pitch(note, instr, output_dir="analize"):
 
     instrument_dir = os.path.join(output_dir, instr)
     os.makedirs(instrument_dir, exist_ok=True)
-    output_file = os.path.join(instrument_dir, f"pitch_distribution_{instr}.csv")
+    output_file = os.path.join(instrument_dir, f"distribuție_pitch_{instr}.csv")
     pitch_counts.to_csv(output_file, index=False)
     print(f"Distribuția pitch-urilor ({instr}) salvată în: {instrument_dir}")
     
@@ -34,7 +34,7 @@ def analiza_distributie_pitch(note, instr, output_dir="analize"):
         'octava_minima': note['octave'].min() if not note.empty else None,
         'octava_maxima': note['octave'].max() if not note.empty else None
     }
-    stats_file = os.path.join(instrument_dir, f"pitch_stats_{instr}.txt")
+    stats_file = os.path.join(instrument_dir, f"pitch_{instr}.txt")
     with open(stats_file, 'w', encoding='utf-8') as f:
         for key, value in stats.items():
             f.write(f"{key}: {value}\n")
@@ -57,7 +57,7 @@ def analiza_ritm(note, instr, output_dir="analize"):
 
     instrument_dir = os.path.join(output_dir, instr)
     os.makedirs(instrument_dir, exist_ok=True)
-    output_file = os.path.join(instrument_dir, f"duration_distribution_{instr}.csv")
+    output_file = os.path.join(instrument_dir, f"distribuție_durată_{instr}.csv")
     duration_counts.to_csv(output_file, index=False)
     print(f"Distribuția duratelor ({instr}) salvată în: {instrument_dir}")
     
@@ -71,7 +71,7 @@ def analiza_ritm(note, instr, output_dir="analize"):
         'durata_maxima': note['duration'].max() if not note.empty else None,
         'durata_totala': note['duration'].sum() if not note.empty else None
     }
-    stats_file = os.path.join(instrument_dir, f"rhythm_stats_{instr}.txt")
+    stats_file = os.path.join(instrument_dir, f"ritm_{instr}.txt")
     with open(stats_file, 'w', encoding='utf-8') as f:
         for key, value in stats.items():
             f.write(f"{key}: {value}\n")
@@ -97,7 +97,7 @@ def analiza_densitate(note, instr, output_dir="analize", bin_size=1.0):
 
     instrument_dir = os.path.join(output_dir, instr)
     os.makedirs(instrument_dir, exist_ok=True)
-    output_file = os.path.join(instrument_dir, f"density_{instr}.csv")
+    output_file = os.path.join(instrument_dir, f"densitate_{instr}.csv")
     density.to_csv(output_file, index=False)
     print(f"Densitatea notelor ({instr}) salvată în: {output_file}")
     
@@ -105,7 +105,7 @@ def analiza_densitate(note, instr, output_dir="analize", bin_size=1.0):
     grafic_densitate(instr, density, instrument_dir)
 
 
-def analiza_file(csv_file, output_dir, output_subdir = "analiza_note"):
+def analiza_note(csv_file, output_dir, output_subdir = "analiza_note"):
     """
     Functia principala pentru a analiza notele din partitura.
 

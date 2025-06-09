@@ -6,8 +6,8 @@ import tkinter as tk
 from tkinter import filedialog, ttk, messagebox
 from PIL import Image, ImageTk
 import subprocess
-from analizare_note import analiza_file
-from pattern import find_pattern
+from analizare_note import analiza_note
+from pattern import pattern
 from segmentare import segmentare
 from note import extrage_note_muzicale
 
@@ -63,13 +63,13 @@ class App:
         self.action_frame = tk.Frame(self.main_frame)
         self.action_frame.grid(row=1, column=0, columnspan=2, pady=5, sticky="ew")
 
-        self.analyze_notes_button = tk.Button(self.action_frame, text="Notes", command=self.analyze_notes, state=tk.DISABLED)
+        self.analyze_notes_button = tk.Button(self.action_frame, text="Note", command=self.analyze_notes, state=tk.DISABLED)
         self.analyze_notes_button.pack(side=tk.LEFT, padx=5)
 
-        self.analyze_segmentation_button = tk.Button(self.action_frame, text="Analyze Segmentation", command=self.analyze_segmentation, state=tk.DISABLED)
+        self.analyze_segmentation_button = tk.Button(self.action_frame, text="Analiză Segmentare", command=self.analyze_segmentation, state=tk.DISABLED)
         self.analyze_segmentation_button.pack(side=tk.LEFT, padx=5)
 
-        self.scroll_label = tk.Label(self.action_frame, text="Scroll down to see all buttons ↓", fg="blue")
+        self.scroll_label = tk.Label(self.action_frame, text="Derulați în jos pentru a vedea toate butoanele ↓", fg="blue")
         self.scroll_label.pack(side=tk.LEFT, padx=5)
 
         # Frame pentru butoane cu scrollbar vertical
@@ -137,14 +137,14 @@ class App:
         """
 
         if not self.input_file:
-            messagebox.showerror("Error", "No file selected!")
+            messagebox.showerror("Error", "Niciun fișier selectat!")
             return
 
         if not self.notes:
             try:
                 # Încarcă fișierul
                 if not self.input_file.endswith(('.xml', '.mid', '.midi')):
-                    messagebox.showerror("Error", "File must be in MusicXML (.xml) or MIDI (.mid, .midi) format!")
+                    messagebox.showerror("Error", "Fișierul trebuie să fie în format MusicXML (.xml) sau MIDI (.mid, .midi)!")
                     return
 
                 try:
@@ -153,7 +153,7 @@ class App:
                     try:
                         self.part = corpus.parse(self.input_file)
                     except Exception as e:
-                        messagebox.showerror("Error", f"Error loading file '{self.input_file}': {e}")
+                        messagebox.showerror("Error", f"Eroare încărcare fișier '{self.input_file}': {e}")
                         return
 
                 name = os.path.splitext(os.path.basename(self.input_file))[0]
@@ -164,7 +164,7 @@ class App:
                 musicxml_path = os.path.join(self.output_dir, "partitura_temp.xml")
                 self.part.write('musicxml', fp=musicxml_path)
 
-                # Rulează analiza notelor
+                # Rulează extragerea notelor
                 self.csv_file_notes, self.output_dir_notes = extrage_note_muzicale(self.part, name, self.output_dir)
                 self.notes = True
                 # Adaugă toate fișierele din output_dir_notes și subdirectoare
@@ -176,15 +176,15 @@ class App:
                 # Adaugă butoane suplimentare
                 self.add_analysis_buttons()
 
-                # Scanează fișierele și creează butoane doar pentru analiza notelor
+                # Scanează fișierele și creează butoane doar pentru extragerea notelor
                 self.scan_files(self.output_dir_notes, "notes")
                 self.create_buttons()
 
-                messagebox.showinfo("Success", "Notes analysis completed. Use the buttons to view results or proceed with further analysis.")
+                messagebox.showinfo("Success", "Extragere note completă. Folosește butoanele pentru a vizualiza rezultatele.")
             except Exception as e:
-                messagebox.showerror("Error", f"Analysis failed: {e}")
+                messagebox.showerror("Error", f"Eroare extragere note: {e}")
         else:
-            messagebox.showinfo("Info", "Notes analysis already completed. Displaying existing results.")
+            messagebox.showinfo("Info", "Extragerea notelor a fost deja finalizată. Afișăm rezultatele existente.")
             self.scan_files(self.output_dir_notes, "notes")
             self.create_buttons()
 
@@ -201,7 +201,7 @@ class App:
             try:
                 # Încarcă fișierul
                 if not self.input_file.endswith(('.xml', '.mid', '.midi')):
-                    messagebox.showerror("Error", "File must be in MusicXML (.xml) or MIDI (.mid, .midi) format!")
+                    messagebox.showerror("Error", "Fișierul trebuie să fie în format MusicXML (.xml) sau MIDI (.mid, .midi)!")
                     return
 
                 try:
@@ -210,7 +210,7 @@ class App:
                     try:
                         self.part = corpus.parse(self.input_file)
                     except Exception as e:
-                        messagebox.showerror("Error", f"Error loading file '{self.input_file}': {e}")
+                        messagebox.showerror("Error", f"Eroare încărcare fișier '{self.input_file}': {e}")
                         return
 
                 name = os.path.splitext(os.path.basename(self.input_file))[0]
@@ -234,11 +234,11 @@ class App:
                 self.scan_files(self.output_dir_seg, "segmentation")
                 self.create_buttons()
 
-                messagebox.showinfo("Success", "Segmentation analysis completed. Use the buttons to view results.")
+                messagebox.showinfo("Success", "Segmentare completă. Folosește butoanele pentru a vizualiza rezultatele.")
             except Exception as e:
-                messagebox.showerror("Error", f"Analysis segmentation failed: {e}")
+                messagebox.showerror("Error", f"Eroare analiză segmentare: {e}")
         else:
-            messagebox.showinfo("Info", "Segmentation analysis already completed. Displaying existing results.")
+            messagebox.showinfo("Info", "Extragerea segmentării a fost deja finalizată. Afișăm rezultatele existente.")
             self.scan_files(self.output_dir_seg, "segmentation")
             self.create_buttons()
 
@@ -252,10 +252,10 @@ class App:
                 widget.destroy()
 
         # Adaugă butoanele pentru analize suplimentare
-        self.analyze_notes_detail_button = tk.Button(self.action_frame, text="Analyze Notes in Detail", command=self.analyze_notes_detail)
+        self.analyze_notes_detail_button = tk.Button(self.action_frame, text="Analiză note", command=self.analyze_notes_detail)
         self.analyze_notes_detail_button.pack(side=tk.LEFT, padx=5)
 
-        self.analyze_pattern_button = tk.Button(self.action_frame, text="Analyze Pattern", command=self.analyze_pattern)
+        self.analyze_pattern_button = tk.Button(self.action_frame, text="Analiză pattern", command=self.analyze_pattern)
         self.analyze_pattern_button.pack(side=tk.LEFT, padx=5)
 
     def analyze_notes_detail(self):
@@ -264,24 +264,24 @@ class App:
         """
 
         if not self.input_file or not self.part:
-            messagebox.showerror("Error", "No file or partitura loaded!")
+            messagebox.showerror("Error", "Nicio partitură încărcată!")
             return
 
         if not self.notes_analyzed:
             try:
                 name = os.path.splitext(os.path.basename(self.input_file))[0]
-                self.output_dir_analyze_notes = analiza_file(self.csv_file_notes, self.output_dir_notes)
+                self.output_dir_analyze_notes = analiza_note(self.csv_file_notes, self.output_dir_notes)
                 self.notes_analyzed = True
                 # Adaugă toate fișierele din output_dir_analyze_notes și subdirectoare
                 for root, _, files in os.walk(self.output_dir_analyze_notes):
                     for file in files:
                         if file.endswith((".csv", ".png", ".json", ".txt")):
                             self.generated_files["notes_detail"].add(os.path.relpath(os.path.join(root, file), self.output_dir))
-                messagebox.showinfo("Success", "Detailed notes analysis completed.")
+                messagebox.showinfo("Success", "Analiza notelor completă. Folosește butoanele pentru a vizualiza rezultatele.")
             except Exception as e:
-                messagebox.showerror("Error", f"Detailed analysis failed: {e}")
+                messagebox.showerror("Error", f"Eroare analiză note: {e}")
         else:
-            messagebox.showinfo("Info", "Detailed notes analysis already completed. Displaying existing results.")
+            messagebox.showinfo("Info", "Analiză note detaliată deja completată. Afișare rezultate existente.")
 
         # Actualizează butoanele cu fișierele existente pentru analiza detaliată
         self.scan_files(self.output_dir_analyze_notes, "notes_detail")
@@ -292,7 +292,7 @@ class App:
         Rulează analiza pattern-urilor din partitura încărcată.
         """
         if not self.input_file or not self.part:
-            messagebox.showerror("Error", "No file or partitura loaded!")
+            messagebox.showerror("Error", "Niciun fișier sau partitură încărcată!")
             return
 
         if not self.pattern_analyzed:
@@ -302,18 +302,18 @@ class App:
                 from vizualizare_pattern import generate_all_graphics  # Ajustează calea dacă este necesar
                 total_duration = int(self.part.flat.quarterLength)
                 output_json = os.path.join(self.output_dir, "patterns.json")
-                self.output_dir_pattern = find_pattern(self.csv_file_notes, self.output_dir, self.part)
+                self.output_dir_pattern = pattern(self.csv_file_notes, self.output_dir, self.part)
                 self.pattern_analyzed = True
                 # Adaugă toate fișierele din output_dir_pattern și subdirectoare
                 for root, _, files in os.walk(self.output_dir_pattern):
                     for file in files:
                         if file.endswith((".json", ".png")):
                             self.generated_files["pattern"].add(os.path.relpath(os.path.join(root, file), self.output_dir))
-                messagebox.showinfo("Success", "Pattern analysis completed.")
+                messagebox.showinfo("Success", "Analiza pattern-urilor a fost finalizată.")
             except Exception as e:
-                messagebox.showerror("Error", f"Pattern analysis failed: {e}")
+                messagebox.showerror("Error", f"Eroare analiză pattern-uri: {e}")
         else:
-            messagebox.showinfo("Info", "Pattern analysis already completed. Displaying existing results.")
+            messagebox.showinfo("Info", "Analiza pattern-urilor a fost deja finalizată. Afișăm rezultatele existente.")
 
         # Actualizează butoanele cu fișierele existente pentru analiza pattern-urilor
         self.scan_files(self.output_dir_pattern, "pattern")
@@ -449,7 +449,7 @@ class App:
                 musescore_path = "/usr/bin/musescore"
                 subprocess.run([musescore_path, musicxml_path])
             except Exception as e:
-                messagebox.showerror("Error", f"Can't show partitura: {e}. Ensure MuseScore is installed and accessible at {musescore_path}.")
+                messagebox.showerror("Error", f"Eroare afișare partitură: {e}. Asigură-te că MuseScore este instalat și accesibil la {musescore_path}.")
 
     def show_content(self, file_path):
         """
@@ -546,7 +546,7 @@ class App:
             self.display_label.pack(fill=tk.BOTH, expand=True)
             self.tree.pack_forget()
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to load image: {e}")
+            messagebox.showerror("Error", f"Eroare încărcare imagine: {e}")
             self.display_label.pack_forget()
 
     def resize_display(self, event):
@@ -561,7 +561,7 @@ class App:
         """
         Curăță afișarea curentă și resetează Treeview-ul.
         """
-        
+
         for item in self.tree.get_children():
             self.tree.delete(item)
         self.tree["columns"] = ("Field1", "Field2", "Field3")
