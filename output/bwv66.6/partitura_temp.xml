@@ -25,28 +25,28 @@
     <score-part id="P1">
       <part-name>Soprano</part-name>
       <part-abbreviation>S.</part-abbreviation>
-      <score-instrument id="I8ddf3a243b580e349e68af060a217c80">
+      <score-instrument id="Ifcbab6a770da3d2ed1207236f6f37cc0">
         <instrument-name>Instrument 1</instrument-name>
       </score-instrument>
     </score-part>
     <score-part id="P2">
       <part-name>Alto</part-name>
       <part-abbreviation>A.</part-abbreviation>
-      <score-instrument id="I5a9fc4fcb734e76210d8257878cea135">
+      <score-instrument id="Ia7dde9fbe5483f62ba003c8ded3dc740">
         <instrument-name>Instrument 2</instrument-name>
       </score-instrument>
     </score-part>
     <score-part id="P3">
       <part-name>Tenor</part-name>
       <part-abbreviation>T.</part-abbreviation>
-      <score-instrument id="Ibc654b7a8b44de283168660681d941a8">
+      <score-instrument id="Icadd3fff2a55ee16bed78145d2767a3b">
         <instrument-name>Instrument 3</instrument-name>
       </score-instrument>
     </score-part>
     <score-part id="P4">
       <part-name>Bass</part-name>
       <part-abbreviation>B.</part-abbreviation>
-      <score-instrument id="Ie9b56b971572d107dcd1a51f3f6740ab">
+      <score-instrument id="I97037a87c2d68a1b539b5d092cebcc33">
         <instrument-name>Instrument 4</instrument-name>
       </score-instrument>
     </score-part>

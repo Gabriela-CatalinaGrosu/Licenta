@@ -85,23 +85,40 @@ def analiza_densitate(note, instr, output_dir="analize", bin_size=1.0):
         instr (str): vocea curentă
         output_dir (str): directorul unde se salvează fișierele
         bin_size (float): dimensiunea bin-ului pentru analiza densității
-
     """
     # Grupare pe intervale de timp
     note = note.copy()
+    if 'offset' not in note.columns:
+        print(f"Coloana 'offset' lipsește în datele pentru {instr}. Se omite analiza densității.")
+        return
+
     note['time_bin'] = (note['offset'] // bin_size) * bin_size
     density = note.groupby('time_bin').size().reset_index()
     density.columns = ['time_bin', 'count']
 
+    # Determină intervalul complet de timp
+    min_time = note['offset'].min() if not note.empty else 0
+    max_time = note['offset'].max() if not note.empty else 0
+    if min_time == max_time:  # Dacă nu există variație, creează un singur bin
+        time_bins = [min_time]
+    else:
+        time_bins = [min_time + i * bin_size for i in range(int((max_time - min_time) / bin_size) + 1)]
+
+    # Creează un DataFrame cu toate intervalele de timp posibile
+    all_bins = pd.DataFrame({'time_bin': time_bins})
+
+    # Îmbină cu densitatea existentă și completează cu zerouri
+    density_full = all_bins.merge(density, on='time_bin', how='left').fillna(0)
+    density_full['count'] = density_full['count'].astype(int)
+
     instrument_dir = os.path.join(output_dir, instr)
     os.makedirs(instrument_dir, exist_ok=True)
     output_file = os.path.join(instrument_dir, f"densitate_{instr}.csv")
-    density.to_csv(output_file, index=False)
+    density_full.to_csv(output_file, index=False)
     print(f"Densitatea notelor ({instr}) salvată în: {output_file}")
     
     # Grafic
-    grafic_densitate(instr, density, instrument_dir)
-
+    grafic_densitate(instr, density_full, instrument_dir)
 
 def analiza_note(csv_file, output_dir, output_subdir = "analiza_note"):
     """
