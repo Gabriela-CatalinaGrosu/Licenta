@@ -1,8 +1,6 @@
 from music21 import *
-import csv
 import os
 import pandas as pd
-import matplotlib.pyplot as plt
 from grafice import *
 
 def analiza_distributie_pitch(note, instr, output_dir="analize"):
@@ -117,30 +115,37 @@ def analiza_note(csv_file, output_dir, output_subdir = "analiza_note"):
     Return:
         output_dir (str): directorul unde sunt salvate analizele
     """
+   # Setează directorul de intrare pentru instrumente
+    note_dir = os.path.join(os.path.dirname(csv_file))
+    print(f"Director de intrare (note): {note_dir}")
+    print(f"Director de ieșire (output): {os.path.join(output_dir, output_subdir)}")
 
     # Creează directorul de ieșire dacă nu există
-    os.makedirs(output_dir, exist_ok=True)
-    output_dir = os.path.join(output_dir, output_subdir)
-    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(os.path.join(output_dir, output_subdir), exist_ok=True)
 
-    # Verifică dacă fișierul CSV există deja
+    # Analiza pentru toate vocile (folosind fișierul principal)
     if not os.path.isfile(csv_file):
         print(f"Fișierul CSV '{csv_file}' nu există. Îl voi crea.")
         return output_dir
     else:
         file = pd.read_csv(csv_file)
         note = file[file['type'] == 'Note']
-        analiza_distributie_pitch(note, "toate vocile", output_dir)
-        analiza_ritm(note, "toate vocile", output_dir)
-        analiza_densitate(note, "toate vocile", output_dir)
+        analiza_distributie_pitch(note, "toate vocile", os.path.join(output_dir, output_subdir))
+        analiza_ritm(note, "toate vocile", os.path.join(output_dir, output_subdir))
+        analiza_densitate(note, "toate vocile", os.path.join(output_dir, output_subdir))
 
-        # Distribuția pitch-urilor (toate vocile)
-        instrumente = file[file['type'] == 'Instrument']['pitch'].unique()
+        # Instrumente
+        instrumente = ['Soprano', 'Alto', 'Tenor', 'Bass']
+
         for instr in instrumente:
-            file_instr = str(instr) + "_note.csv"
-            note_instr = file[file['type'] == 'Note']
-            analiza_distributie_pitch(note_instr, instr, output_dir)
-            analiza_ritm(note_instr, instr, output_dir)
-            analiza_densitate(note_instr, instr, output_dir)
+            file_instr = os.path.join(note_dir, instr, f"{instr}_note.csv")
+            print(file_instr)
+            if os.path.isfile(file_instr):
+                note_instr = pd.read_csv(file_instr)
+                analiza_distributie_pitch(note_instr, instr, os.path.join(output_dir, output_subdir))
+                analiza_ritm(note_instr, instr, os.path.join(output_dir, output_subdir))
+                analiza_densitate(note_instr, instr, os.path.join(output_dir, output_subdir))
+            else:
+                print(f"Fișierul '{file_instr}' nu există. Se omite analiza pentru {instr}.")
 
-    return output_dir
+    return os.path.join(output_dir, output_subdir)

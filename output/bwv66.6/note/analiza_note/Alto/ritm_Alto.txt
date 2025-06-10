@@ -1,4 +1,4 @@
-durata_medie: 0.8727272727272727
+durata_medie: 0.8571428571428571
 durata_minima: 0.5
 durata_maxima: 2.0
-durata_totala: 144.0
+durata_totala: 36.0
