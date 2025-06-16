@@ -5,7 +5,7 @@
   <identification>
     <creator type="composer">Music21</creator>
     <encoding>
-      <encoding-date>2025-06-10</encoding-date>
+      <encoding-date>2025-06-13</encoding-date>
       <software>music21 v.9.7.0</software>
       <software>Finale for Macintosh</software>
       <software>Dolet Light for Finale 2006</software>
@@ -25,28 +25,28 @@
     <score-part id="P1">
       <part-name>Soprano</part-name>
       <part-abbreviation>S.</part-abbreviation>
-      <score-instrument id="Ifcbab6a770da3d2ed1207236f6f37cc0">
+      <score-instrument id="I135f913d4b7b506d250d31f12429e801">
         <instrument-name>Instrument 1</instrument-name>
       </score-instrument>
     </score-part>
     <score-part id="P2">
       <part-name>Alto</part-name>
       <part-abbreviation>A.</part-abbreviation>
-      <score-instrument id="Ia7dde9fbe5483f62ba003c8ded3dc740">
+      <score-instrument id="Ida0e4ee33a8377cda4d36d4e2f401b27">
         <instrument-name>Instrument 2</instrument-name>
       </score-instrument>
     </score-part>
     <score-part id="P3">
       <part-name>Tenor</part-name>
       <part-abbreviation>T.</part-abbreviation>
-      <score-instrument id="Icadd3fff2a55ee16bed78145d2767a3b">
+      <score-instrument id="Ia2969bd6c35fd8a2b67448038526169e">
         <instrument-name>Instrument 3</instrument-name>
       </score-instrument>
     </score-part>
     <score-part id="P4">
       <part-name>Bass</part-name>
       <part-abbreviation>B.</part-abbreviation>
-      <score-instrument id="I97037a87c2d68a1b539b5d092cebcc33">
+      <score-instrument id="I0566f078f46bc402b9dcf2936f04596a">
         <instrument-name>Instrument 4</instrument-name>
       </score-instrument>
     </score-part>

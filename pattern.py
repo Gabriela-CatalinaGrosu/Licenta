@@ -79,7 +79,7 @@ def delta_function(t1, t2):
     (delta_p2, _, d2) = t2
     if d1 != d2:
         return -np.inf
-    if delta_p1 == delta_p2 or abs(delta_p1 - delta_p2) in [1]:
+    if delta_p1 == delta_p2 or abs(delta_p1 - delta_p2) in [0, 1]:
         return 1
     return 0
 
@@ -333,12 +333,40 @@ def pattern(csv_file, output_dir, partitura, output_subdir = "analiza_pattern"):
             for start_pos in range(voice_length - length + 1):
                 if len(voices[source_voice]) >= start_pos + length:
                     result = evaluate_pattern_length(voices, source_voice, length, voice_order, start_pos)
-                    if result:
+                    if result and result['total_matches'] > 1:
                         results.append(result)
     
     output_file = os.path.join(output_dir, "patterns.json")
     json_data = save_results(results, voices, output_file, output_dir)
 
+    # Generare tabel cu distribuția tiparelor
+    pattern_distribution = {}
+    max_matches = 2  # Inițializăm cu minim 2 potriviri
+    for result in results:
+        length = result['length']
+        matches = result['total_matches']
+        max_matches = max(max_matches, matches)  # Actualizăm maximul de potriviri
+        if length not in pattern_distribution:
+            pattern_distribution[length] = {}
+        if matches not in pattern_distribution[length]:
+            pattern_distribution[length][matches] = 0
+        pattern_distribution[length][matches] += 1
+
+    # Salvează tabelul într-un fișier CSV
+    csv_file_path = os.path.join(output_dir, "pattern_distribution.csv")
+    with open(csv_file_path, 'w', newline='') as csvfile:
+        fieldnames = ['Length'] + [f'Matches_{i}' for i in range(2, max_matches + 1)]
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        
+        writer.writeheader()
+        for length in range(min_length, max_length + 1):
+            row = {'Length': length}
+            dist = pattern_distribution.get(length, {})
+            for i in range(2, max_matches + 1):
+                row[f'Matches_{i}'] = dist.get(i, 0)
+            writer.writerow(row)
+
+    print(f"Distribuția tiparelor a fost salvată în {csv_file_path}.")
     total_duration = int(partitura.flat.quarterLength) - 1
     generate_all_graphics(output_file, total_duration, output_dir)
 
